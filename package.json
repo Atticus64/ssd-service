@@ -4,7 +4,7 @@
   "description": "",
   "main": "saw-multi.js",
   "scripts": {
-    "dev": "node main.js",
+    "dev": "node saw-multi.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
