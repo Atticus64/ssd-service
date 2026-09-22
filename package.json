@@ -1,10 +1,10 @@
 {
-  "name": "sum",
+  "name": "SSD server",
   "version": "1.0.0",
   "description": "",
-  "main": "saw-multi.js",
+  "main": "./src/main.js",
   "scripts": {
-    "dev": "node saw-multi.js",
+    "dev": "node ./src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
