@@ -1,8 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const routerSaw  = require("./saw.js");
-const routerTopsis  = require("./topsis.js");
-const alternativas  = require("./alternativas.js");
+import express from "express";
+import cors from "cors";
+import routerSaw  from "./saw.js";
+import routerTopsis  from "./topsis.js";
+import routerRegresion  from "./regresion-lineal.js";
+import alternativas  from "./alternativas.js";
 const app = express();
 
 app.use(cors());
@@ -14,6 +15,7 @@ app.get("/api/matriz-decision", (req, res) => {
 
 app.use("/api/saw", routerSaw);
 app.use("/api/topsis", routerTopsis);
+app.use("/api/regresion-lineal", routerRegresion);
 
 app.get("/api/health", (_, res) => {
 

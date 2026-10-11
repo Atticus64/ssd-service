@@ -10,4 +10,4 @@ const alternativas = [
   { id: "A8", nombre: "JetBrains Fleet", valores: [2000, 500, 4, 5, 7, 8] },
 ];
 
-module.exports = alternativas;
+export default alternativas;

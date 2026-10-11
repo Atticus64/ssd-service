@@ -1,7 +1,8 @@
 // rutas/topsis.js
-const express = require("express");
+import express from "express";
+import alternativas from "./alternativas.js";
+
 const routerTopsis = express.Router();
-const alternativas = require("./alternativas.js");
 
 routerTopsis.post("/evaluar", (req, res) => {
   const { pesos, tipos } = req.body;
@@ -102,4 +103,4 @@ routerTopsis.post("/evaluar", (req, res) => {
   });
 });
 
-module.exports = routerTopsis;
+export default routerTopsis;

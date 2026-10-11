@@ -1,7 +1,8 @@
 // rutas/saw.js
-const express = require("express");
+import express from "express";
+import alternativas from "./alternativas.js"; // Consumimos el archivo central de datos
+
 const routerSaw = express.Router();
-const alternativas = require("./alternativas.js"); // Consumimos el archivo central de datos
 
 routerSaw.post("/evaluar", (req, res) => {
   const { pesos, tipos } = req.body;
@@ -62,4 +63,4 @@ routerSaw.post("/evaluar", (req, res) => {
 });
 
 // Exportamos el router para que server.js pueda usarlo
-module.exports = routerSaw;
+export default routerSaw;
