@@ -37,10 +37,10 @@ const formatIssues = (error) =>
   error.issues.map((issue) => ({
     campo: issue.path.length
       ? issue.path.reduce(
-          (acc, seg) =>
-            typeof seg === "number" ? `${acc}[${seg}]` : `${acc}.${seg}`,
-          ""
-        ).slice(1)
+        (acc, seg) =>
+          typeof seg === "number" ? `${acc}[${seg}]` : `${acc}.${seg}`,
+        ""
+      ).slice(1)
       : "body",
     mensaje: issue.message,
   }));
@@ -54,10 +54,10 @@ const formatIssues = (error) =>
 const getModel = (x, y, n) => {
   const sum_x = x.reduce((x1, x2) => x1 + x2, 0);
   const sum_y = y.reduce((x1, x2) => x1 + x2, 0);
-  const sum_sq = x.map((xi) => xi * xi).reduce((x1, x2) => x1 + x2, 0);
-  const sum_xy = x
-    .map((x1, indx) => x1 * y[indx])
-    .reduce((x1, x2) => x1 + x2, 0);
+  const square_x = x.map((xi) => xi * xi);
+  const mul_xy = x.map((xi, indx) => xi * y[indx]);
+  const sum_sq = square_x.reduce((x1, x2) => x1 + x2, 0);
+  const sum_xy = mul_xy.reduce((x1, x2) => x1 + x2, 0);
 
   const numerator = n * sum_xy - sum_x * sum_y;
   const denominator = n * sum_sq - sum_x * sum_x;
@@ -68,8 +68,51 @@ const getModel = (x, y, n) => {
   const model = (xi) => a + b * xi;
   const prediccion = x.map((xi) => model(xi));
 
-  return { a, b, prediccion, sumas: { sum_x, sum_y, sum_sq, sum_xy } };
+  return { a, b, prediccion, square_x, mul_xy, sumas: { sum_x, sum_y, sum_sq, sum_xy } };
 };
+
+/**
+ * getMetricas
+ * @param {number[]} prediccion
+ * @param {number[]} y
+ * @param {number} n
+ */
+const getMetricas = (y, prediccion, n) => {
+  const errores = y.map((yi, indx) => yi - prediccion[indx]);
+
+  const errores_abs = errores.map((ei) => Math.abs(ei));
+
+  const errores_sq = errores.map((ei) => ei * ei);
+
+  const errores_pct = y.map(
+    (yi, indx) => (errores_abs[indx] / Math.abs(yi)) * 100,
+  );
+
+  const sum_abs = errores_abs.reduce((x1, x2) => x1 + x2, 0);
+
+  const sum_sq = errores_sq.reduce((x1, x2) => x1 + x2, 0);
+
+  const sum_pct = errores_pct.reduce((x1, x2) => x1 + x2, 0);
+
+  const mae = sum_abs / n;
+
+  const rmse = Math.sqrt(sum_sq / n);
+
+  const mape = sum_pct / n;
+
+  return {
+    mae,
+    rmse,
+    mape,
+    errores,
+    errores_abs,
+    errores_sq,
+    errores_pct,
+    sumas: { sum_abs, sum_sq, sum_pct },
+  };
+};
+
+
 
 routerRegresion.post("/evaluar", (req, res) => {
   const result = regresionSchema.safeParse(req.body);
@@ -82,7 +125,7 @@ routerRegresion.post("/evaluar", (req, res) => {
   }
 
   const { x, y, n } = result.data;
-  const { a, b, prediccion, sumas } = getModel(x, y, n);
+  const { a, b, prediccion, sumas: sumas_model, square_x, mul_xy } = getModel(x, y, n);
 
   if (!Number.isFinite(a) || !Number.isFinite(b)) {
     return res.status(400).json({
@@ -96,14 +139,37 @@ routerRegresion.post("/evaluar", (req, res) => {
     });
   }
 
+  const {
+    mae,
+    rmse,
+    mape,
+    errores,
+    errores_abs,
+    errores_sq,
+    errores_pct,
+    sumas,
+  } = getMetricas(y, prediccion, n);
+
   res.json({
     mensaje: "Análisis de regresión lineal completado",
     coeficientes: {
       a: parseFloat(a.toFixed(4)),
       b: parseFloat(b.toFixed(4)),
     },
-    sumas,
+    sumas_model,
+    square_x,
+    mul_xy,
     prediccion,
+    metricas: {
+      mae: parseFloat(mae.toFixed(4)),
+      rmse: parseFloat(rmse.toFixed(4)),
+      mape: parseFloat(mape.toFixed(4)),
+    },
+    sumas,
+    errores,
+    errores_abs,
+    errores_sq,
+    errores_pct,
   });
 });
 

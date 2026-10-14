@@ -3,6 +3,7 @@ import cors from "cors";
 import routerSaw  from "./saw.js";
 import routerTopsis  from "./topsis.js";
 import routerRegresion  from "./regresion-lineal.js";
+import routerMetricas  from "./metricas.js";
 import alternativas  from "./alternativas.js";
 const app = express();
 
@@ -16,6 +17,7 @@ app.get("/api/matriz-decision", (req, res) => {
 app.use("/api/saw", routerSaw);
 app.use("/api/topsis", routerTopsis);
 app.use("/api/regresion-lineal", routerRegresion);
+app.use("/api/regresion-lineal/metricas", routerMetricas);
 
 app.get("/api/health", (_, res) => {
 
